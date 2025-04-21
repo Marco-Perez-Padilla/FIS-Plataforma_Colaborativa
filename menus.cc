@@ -59,7 +59,7 @@ void clrscr() {
 * @brief Start menu to choose an option of the following
 * @param char option to be used
 */
-void MainMenu (char &opcion) {
+void MainMenuDescription (char &opcion) {
  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
@@ -67,3 +67,158 @@ void MainMenu (char &opcion) {
  std::cout << "Introduce the action to execute  > ";
  std::cin >> opcion;
 };
+
+
+/**
+ * @brief Function that uses the description of the main menu and calls its functions
+ * @param char chosen option 
+ */
+void MainMenuAction (char &opcion) {
+  char option;
+  do {
+    MainMenuDescription(option);
+
+    switch (option) {
+      case 'a':
+
+      break;
+
+      case 'b':
+
+      break;
+
+      case 'c':
+
+      break;
+
+      //
+    }
+  } while (option != 'q');
+}
+
+
+/**
+* @brief Menu only accessible if the user is an Administrator. Shows the options to administrate the plattform
+* @param char option to be used
+*/
+void AdministratorMenuDescription (char &opcion) {
+  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
+  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
+  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
+  std::cout << "q. [q]uit program" << std::endl;
+  std::cout << "Introduce the action to execute  > ";
+  std::cin >> opcion;
+};
+
+
+/**
+ * @brief Function that uses the description of the administator menu and calls its functions
+ * @param char chosen option 
+ */
+void AdministratorMenuAction (char &opcion) {
+  char option;
+  do {
+    AdministratorMenuDescription(option);
+
+    switch (option) {
+      case 'a':
+
+      break;
+
+      case 'b':
+
+      break;
+
+      case 'c':
+
+      break;
+
+      //
+    }
+  } while (option != 'q');
+}
+
+
+/**
+* @brief Menu  accessible if the user is a Student or an Administrator. Shows the options the student can do in the plattform.
+* @param char option to be used
+*/
+void StudentMenuDescription (char &opcion) {
+  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
+  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
+  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
+  std::cout << "q. [q]uit program" << std::endl;
+  std::cout << "Introduce the action to execute  > ";
+  std::cin >> opcion;
+};
+
+
+/**
+ * @brief Function that uses the description of the student menu and calls its functions
+ * @param char chosen option 
+ */
+void StudentMenuAction (char &opcion) {
+  char option;
+  do {
+    StudentMenuDescription(option);
+
+    switch (option) {
+      case 'a':
+
+      break;
+
+      case 'b':
+
+      break;
+
+      case 'c':
+
+      break;
+
+      //
+    }
+  } while (option != 'q');
+}
+
+
+
+/**
+* @brief Menu  accessible if the user is a Teacher or an Administrator. Shows the options the teacher can do in the plattform.
+* @param char option to be used
+*/
+void TeacherMenuDescription (char &opcion) {
+  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
+  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
+  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
+  std::cout << "q. [q]uit program" << std::endl;
+  std::cout << "Introduce the action to execute  > ";
+  std::cin >> opcion;
+};
+
+
+/**
+ * @brief Function that uses the description of the teacher menu and calls its functions
+ * @param char chosen option 
+ */
+void TeacherMenuAction (char &opcion) {
+  char option;
+  do {
+    TeacherMenuDescription(option);
+
+    switch (option) {
+      case 'a':
+
+      break;
+
+      case 'b':
+
+      break;
+
+      case 'c':
+
+      break;
+
+      //
+    }
+  } while (option != 'q');
+}

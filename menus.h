@@ -20,4 +20,11 @@
 
 void pressanykey();
 void clrscr();
-void MainMenu(char &option);
+void MainMenuDescription(char &option);
+void MainMenuAction(char &opcion);
+void AdministratorMenuDescription(char &option);
+void AdministratorMenuAction(char &opcion);
+void StudentMenuDescription(char &option);
+void StudentMenuAction(char &opcion);
+void TeacherMenuDescription(char &option);
+void TeacherMenuAction(char &opcion);
