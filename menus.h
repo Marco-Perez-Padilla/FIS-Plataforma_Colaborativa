@@ -20,6 +20,8 @@
 
 void pressanykey();
 void clrscr();
+void LogInMenuDescription(char &option);
+void LogInMenuAction(char &option);
 void MainMenuDescription(char &option);
 void MainMenuAction(char &opcion);
 void AdministratorMenuDescription(char &option);

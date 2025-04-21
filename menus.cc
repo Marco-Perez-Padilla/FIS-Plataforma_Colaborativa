@@ -55,6 +55,49 @@ void clrscr() {
 }
 
 
+
+/**
+* @brief Start menu to choose an option of the following
+* @param char option to be used
+*/
+void LogInMenuDescription (char &opcion) {
+  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
+  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
+  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
+  std::cout << "q. [q]uit program" << std::endl;
+  std::cout << "Introduce the action to execute  > ";
+  std::cin >> opcion;
+};
+ 
+
+/**
+ * @brief Function that uses the description of the login menu and calls its functions
+ * @param char chosen option 
+ */
+void LogInMenuAction (char &opcion) {
+  char option;
+  do {
+    LogInMenuDescription(option);
+
+    switch (option) {
+      case 'a':
+
+      break;
+
+      case 'b':
+
+      break;
+
+      case 'c':
+
+      break;
+
+      //
+    }
+  } while (option != 'q');
+}
+
+
 /**
 * @brief Start menu to choose an option of the following
 * @param char option to be used
