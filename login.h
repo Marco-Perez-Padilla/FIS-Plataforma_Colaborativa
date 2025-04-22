@@ -18,6 +18,8 @@
 **      21/04/2025 - Creacion (primera version) del codigo
 **/
 
+#ifndef LOGIN_H
+#define LOGIN_H
 
 #include <string>
 
@@ -31,3 +33,5 @@ void VerifyLogIn(const std::string& email, const std::string& password, const st
 void Register();
 void LogIn();
 void ChangePassword() ;
+
+#endif
