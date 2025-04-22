@@ -23,6 +23,7 @@
 #include <regex>
 #include <fstream>
 
+#include "menus.h"
 #include "login.h"
 
 
@@ -118,12 +119,12 @@ bool VerifyValidPassword(const std::string& password) {
 
 /**
  * @brief Sign ups a user with email and password (This function is on construction, it'll have to assign roles to the user)
- * @param string email of the user
+ * @param string user // CAMBIAR POR STRUCT U OBJECTO DE LA CLASE USER
  * @param string password of the user
  * @param string name of the file that stores the encrypted passwords
  */
-void SignUpUser(const std::string& email, const std::string& password, std::string& password_file) {
-  std::string copy_password = password;
+void SignUpUser(const std::string& user, const std::string& password, std::string& password_file) {  // LA IDEA ES PEDIR POR STD::CIN NOMBRE, EMAIL Y CONTRASEÑA EN EL MAIN. 
+  std::string copy_password = password;                                                              // crear struct (clase) con nombre e email, pasar el struct como parametro a esta funcion
   std::ofstream passwd(password_file, std::ios::app);
 
   if (!passwd.is_open()) {
@@ -146,17 +147,17 @@ void SignUpUser(const std::string& email, const std::string& password, std::stri
 
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
 
-  passwd << email << ", " << encrypted_password << std::endl;
+  passwd << user << ", " << encrypted_password << std::endl; //user.getEmai()
 }
 
 
 /**
  * @brief Checks if a login is valid or not comparing the given password with the encrypted one (This function is on construction, it'll have to look if the user exists)
- * @param string email of the user
+ * @param string user // CAMBIAR POR STRUCT U OBJECTO DE LA CLASE USER
  * @param string given password
  * @param string name of the file that stores the encrypted passwords
  */
-void VerifyLogIn(const std::string& email, const std::string& password, const std::string& password_file) {
+void VerifyLogIn(const std::string& user, const std::string& password, const std::string& password_file) {
   std::ifstream passwd(password_file);
 
   if (!passwd.is_open()) {
@@ -181,7 +182,7 @@ void VerifyLogIn(const std::string& email, const std::string& password, const st
         encrypted_password.erase(0, 1);
       }
 
-      if (file_email == email) {
+      if (file_email == user) {  // user.getEmail()
         found = true;
         std::string decrypted_password = Decrypt(encrypted_password, key, shift);
 
@@ -196,6 +197,63 @@ void VerifyLogIn(const std::string& email, const std::string& password, const st
   }
   
   if (!found) {
-    // NO ENCONTRADO
+    // USUARIO NO ENCONTRADO -> NO REGISTRADO
   }
+}
+
+/**
+ * @brief Registers a user, storaging it on the data base and password file
+ */
+void Register() {
+  std::string name;
+  std::string email;
+  std::string password;
+  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::cout << "Enter name: ";
+  std::cin >> name;
+  std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
+  std::cin >> email;
+  std::cout << "Enter password: ";
+  SignUpUser(email, password, password_file);
+  // Además, añadir el usuario con su nombre y demás en una base de datos. Mi idea es que internamente se use email y contraseña para iniciar sesion, y que dentro aparezca username
+  // para lo que necesitamos un archivo que sirva de base de datos y relacione mínimo username y email
+}
+
+
+/**
+ * @brief Allows or denies the login
+ */
+void LogIn() {
+  std::string email;
+  std::string password;
+  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
+  std::cin >> email;
+  std::cout << "Enter password: ";
+  VerifyLogIn(email, password, password_file); 
+  // Conceder acceso. Se controla en el main. Yo mandaría a menú principal, y si la contraseña es incorrecta que vuelva al menu de login
+  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
+}
+
+
+// Tampoco estaría mal función de recuperar contraseña. Lo he pensado y he encontrado tres enfoques:
+//    1. Vamos a lo cutre y que se recupere tan solo poniendo email (cualquiera con conocimiento del email puede averiguar las contraseñas)
+//    2. Implementamos en la base de datos respuestas a preguntas (como antes hacía Google. Te hacían una pregunta y si respondías lo mismo te mandaban la contraseña)
+//    3. Nos metemos con recuperación de contraseñas de verdad mandando emails
+
+
+/**
+ * @brief Allows the change of a password
+ */
+void ChangePassword() {  
+  std::string email;
+  std::string password;
+  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
+  std::cin >> email;
+  std::cout << "Enter old password: ";
+  VerifyLogIn(email, password, password_file);
+  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
+  std::cout << "Enter new password: ";
+  SignUpUser(email, password, password_file);
 }

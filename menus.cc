@@ -23,7 +23,7 @@
 #include <limits>
 
 #include "menus.h"
-
+#include "login.h"
 
 // Including libreries for compatibility among operative systems
 #ifdef _WIN32
@@ -52,6 +52,56 @@ void pressanykey() {
  */
 void clrscr() {
   system(CLEAR);
+}
+
+
+
+/**
+* @brief Start menu to choose an option of the following
+* @param char option to be used
+*/
+void LogInMenuDescription (char &opcion) {
+  std::cout << "L. [L]og into the plattform" << std::endl;     
+  std::cout << "S. [S]ign up" << std::endl;
+  std::cout << "C. [C]hange password" << std::endl;        
+  std::cout << "q. [q]uit program" << std::endl;
+  std::cout << "Introduce the action to execute  > ";
+  std::cin >> opcion;
+};
+ 
+
+/**
+ * @brief Function that uses the description of the login menu and calls its functions
+ * @param char chosen option 
+ */
+void LogInMenuAction (char &opcion) {
+  char option;
+  do {
+    clrscr();
+    LogInMenuDescription(option);
+
+    switch (option) {
+      case 'L':
+        LogIn(); // Hacer try-catch aqui
+        std::cout << "Log in successful. Press any key to continue" << std::endl;
+        pressanykey();
+        clrscr();
+        // Mandar a otro menú o algo
+      break;
+
+      case 'S':
+        Register();
+        std::cout << "Sign up successful. Press any key to continue" << std::endl;
+        pressanykey();
+      break;
+
+      case 'C':
+        ChangePassword();
+        std::cout << "Log in successful. Press any key to continue" << std::endl;
+        pressanykey();
+      break;
+    }
+  } while (option != 'q');
 }
 
 
