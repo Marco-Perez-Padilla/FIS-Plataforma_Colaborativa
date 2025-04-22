@@ -18,6 +18,9 @@
 **      21/04/2025 - Creacion (primera version) del codigo
 **/
 
+#ifndef MENUS_H
+#define MENUS_H
+
 void pressanykey();
 void clrscr();
 void LogInMenuDescription(char &option);
@@ -30,3 +33,5 @@ void StudentMenuDescription(char &option);
 void StudentMenuAction(char &opcion);
 void TeacherMenuDescription(char &option);
 void TeacherMenuAction(char &opcion);
+
+#endif
