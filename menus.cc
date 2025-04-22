@@ -23,7 +23,7 @@
 #include <limits>
 
 #include "menus.h"
-
+#include "login.h"
 
 // Including libreries for compatibility among operative systems
 #ifdef _WIN32
@@ -61,9 +61,9 @@ void clrscr() {
 * @param char option to be used
 */
 void LogInMenuDescription (char &opcion) {
-  std::cout << "i. [i]nsert new NIF, number with 8 digits" << std::endl;     
-  std::cout << "s. [s]earch a specified NIF in the table hash" << std::endl;
-  std::cout << "o. Enter [o]rdenation mode" << std::endl;        
+  std::cout << "L. [L]og into the plattform" << std::endl;     
+  std::cout << "S. [S]ign up" << std::endl;
+  std::cout << "C. [C]hange password" << std::endl;        
   std::cout << "q. [q]uit program" << std::endl;
   std::cout << "Introduce the action to execute  > ";
   std::cin >> opcion;
@@ -77,22 +77,29 @@ void LogInMenuDescription (char &opcion) {
 void LogInMenuAction (char &opcion) {
   char option;
   do {
+    clrscr();
     LogInMenuDescription(option);
 
     switch (option) {
-      case 'a':
-
+      case 'L':
+        LogIn(); // Hacer try-catch aqui
+        std::cout << "Log in successful. Press any key to continue" << std::endl;
+        pressanykey();
+        clrscr();
+        // Mandar a otro menú o algo
       break;
 
-      case 'b':
-
+      case 'S':
+        Register();
+        std::cout << "Sign up successful. Press any key to continue" << std::endl;
+        pressanykey();
       break;
 
-      case 'c':
-
+      case 'C':
+        ChangePassword();
+        std::cout << "Log in successful. Press any key to continue" << std::endl;
+        pressanykey();
       break;
-
-      //
     }
   } while (option != 'q');
 }
