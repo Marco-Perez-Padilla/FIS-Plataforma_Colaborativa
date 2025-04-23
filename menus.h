@@ -21,17 +21,19 @@
 #ifndef MENUS_H
 #define MENUS_H
 
+#include <vector>
+#include "users.h"
+
+extern std::vector<User> users;
+extern User* currentUser;
+
 void pressanykey();
 void clrscr();
+
 void LogInMenuDescription(char &option);
 void LogInMenuAction(char &option);
+
 void MainMenuDescription(char &option);
-void MainMenuAction(char &opcion);
-void AdministratorMenuDescription(char &option);
-void AdministratorMenuAction(char &opcion);
-void StudentMenuDescription(char &option);
-void StudentMenuAction(char &opcion);
-void TeacherMenuDescription(char &option);
-void TeacherMenuAction(char &opcion);
+void MainMenuAction(char &option);
 
 #endif
