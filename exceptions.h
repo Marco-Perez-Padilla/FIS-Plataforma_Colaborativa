@@ -77,6 +77,15 @@ class WrongAnswerException : public Exceptions {
 /**
  * @brief Class ClosedInsertException. Throws an exception if a key couldn't be inserted on a hash table
  */
+class WrongPasswordException : public Exceptions {
+ public:
+  WrongPasswordException() : Exceptions("Error: Incorrect password") {}
+};
+
+
+/**
+ * @brief Class ClosedInsertException. Throws an exception if a key couldn't be inserted on a hash table
+ */
 class InvalidEmailException : public Exceptions {
  public:
   InvalidEmailException() : Exceptions("Error: Incorrect email format") {}

@@ -78,10 +78,12 @@
     "cwchar": "cpp",
     "cwctype": "cpp",
     "deque": "cpp",
+    "list": "cpp",
     "string": "cpp",
     "unordered_map": "cpp",
     "vector": "cpp",
     "exception": "cpp",
+    "expected": "cpp",
     "algorithm": "cpp",
     "functional": "cpp",
     "iterator": "cpp",
@@ -113,9 +115,6 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "typeinfo": "cpp",
-    "variant": "cpp",
-    "list": "cpp",
-    "expected": "cpp",
-    "text_encoding": "cpp"
+    "variant": "cpp"
   }
 }
