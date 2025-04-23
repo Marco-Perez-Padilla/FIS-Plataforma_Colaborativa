@@ -39,7 +39,7 @@ class User {
  private:
   std::string email_;
   std::string username_;
-  int short role_; // 0=admin,1=profesor,2=alumno
+  short int role_; // 0=admin,1=profesor,2=alumno
   std::vector<Message> inbox_;
  public:
   // Constructors
@@ -51,7 +51,9 @@ class User {
   // Getters
   const std::string& getEmail() const;
   const std::string& getUsername() const;
-
+  const short int getRole() const;
+  const std::vector<Message>& getInbox() const;
+  
   // Mensajería
   void sendMessage(User& recipient, const std::string& text);
   void receiveMessage(const Message& msg);

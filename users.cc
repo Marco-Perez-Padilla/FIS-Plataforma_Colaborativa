@@ -32,6 +32,8 @@ User::User(const string& email, const string& username, short role)
 
 const string& User::getEmail() const    { return email_; }
 const string& User::getUsername() const { return username_; }
+const short int User::getRole() const {return role_;}
+const std::vector<Message>& User::getInbox() const {return inbox_;}
 
 // Enviar y recibir
 void User::sendMessage(User& recipient, const string& text) {
