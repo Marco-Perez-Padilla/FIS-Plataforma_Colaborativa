@@ -72,8 +72,10 @@ void LogInMenuAction(char &opt) {
     switch (opt) {
       case 'L': {
         std::string email, password;
-        std::cout << "Email: ";    std::cin >> email;
-        std::cout << "Password: "; std::cin >> password;
+        std::cout << "Email: ";
+        std::cin >> email;
+        std::cout << "Password: ";
+        std::cin >> password;
         std::string pwd_file = "passwords.txt";
         User temp(email, email.substr(0, email.find('@')));
         VerifyLogIn(temp, password, pwd_file);
@@ -92,9 +94,12 @@ void LogInMenuAction(char &opt) {
       }
       case 'S': {
         std::string name, email, password;
-        std::cout << "Name: ";     std::cin >> name;
-        std::cout << "Email: ";    std::cin >> email;
-        std::cout << "Password: "; std::cin >> password;
+        std::cout << "Name: ";
+        std::cin >> name;
+        std::cout << "Email: ";
+        std::cin >> email;
+        std::cout << "Password: ";
+        std::cin >> password;
         std::string pwd_file = "passwords.txt";
         User newU(email, name);
         SignUpUser(newU, password, pwd_file);
@@ -134,7 +139,8 @@ void MainMenuAction(char &opt) {
     switch (opt) {
       case 'M': {
         std::string dest, text;
-        std::cout << "Recipient email: "; std::cin >> dest;
+        std::cout << "Recipient email: ";
+        std::cin >> dest;
         std::cout << "Message: ";
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
         std::getline(std::cin, text);
