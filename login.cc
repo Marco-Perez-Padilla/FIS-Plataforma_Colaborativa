@@ -103,6 +103,17 @@ std::string Decrypt(const std::string& encrypted, const std::string& key, int sh
 
 
 /**
+ * @brief Verifies if a given email is valid (but not if it exists)
+ * @param string email to be checked
+ * @return true if the format is valid, false otherwise
+ */
+bool CheckEmail(const std::string& email) {
+  std::regex pattern(R"(^(\d{10}@ull\.edu\.es|[a-zA-Z0-9._%+-]+@(ull\.es|gmail\.com))$)");
+  return std::regex_match(email, pattern);
+}
+
+
+/**
  * @brief Verifies if a password if valid. It must contain upper and lower case, number, special character and minimum of 8 size
  * @param string password to be checked 
  * @return true if the password is valid, false otherwise
