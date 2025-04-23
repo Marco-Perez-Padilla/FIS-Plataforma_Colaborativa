@@ -16,6 +16,7 @@
 
 ** Historial de revisiones:
 **      21/04/2025 - Creacion (primera version) del codigo
+**      23/04/2025 - Adicion funciones de recuperacion de contraseña y excepciones
 **/
 
 #ifndef LOGIN_H
@@ -30,13 +31,14 @@ std::string CaesarCypher(const std::string& text, int shift);
 std::string Encrypt(const std::string& password, const std::string& key, int shift);
 std::string Decrypt(const std::string& encrypted, const std::string& key, int shift);
 bool VerifyValidPassword(const std::string& password);
-bool isSignedUp(const User& user);
-void SignUpUser(const User& user, const std::string& password, std::string& password_file);
-void VerifyLogIn(const User& user, const std::string& password, const std::string& password_file);
-void Register();
+bool isSignedUp(const User& user, const std::string& password_file);
+void SignUpUser(const User& user, const std::string& password, std::string& password_file, const std::string& answer);
+bool VerifyLogIn(const User& user, const std::string& password, const std::string& password_file);
+const std::string& VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file);
+bool Register();
 const User LogIn();
-void ChangePassword();
-void RecoverPassword();
-
+bool ChangePassword();
+bool RecoverPassword();
+void ReplacePassword(const User& user, const std::string& password, const std::string& password_file);
 
 #endif
