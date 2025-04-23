@@ -395,12 +395,13 @@ const User LogIn() {
   std::string email;
   std::string name;
   std::string password;
-  std::string password_file = "password_maneger.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter password: ";
-
+  std::cin >> password;
+  
   User user(email, name);
   VerifyLogIn(user, password, password_file); 
   return user;

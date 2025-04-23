@@ -57,7 +57,6 @@ class User {
   // Mensajería
   void sendMessage(User& recipient, const std::string& text);
   void receiveMessage(const Message& msg);
-  const std::vector<Message>& getInbox() const;
   void markAsRead(size_t index);
 };
 

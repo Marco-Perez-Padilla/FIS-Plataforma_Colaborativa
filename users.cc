@@ -37,19 +37,12 @@ const std::vector<Message>& User::getInbox() const {return inbox_;}
 
 // Enviar y recibir
 void User::sendMessage(User& recipient, const string& text) {
-  // Creamos del mensaje
-  Message msg {
-    /*sender=*/ this->username_,
-    /*content=*/ text,
-    /*timestamp=*/ system_clock::now(),
-    /*read=*/ false
-  };
-  // Lo entregamos
-  recipient.receiveMessage(msg);
+  Message m{ username_, text, std::chrono::system_clock::now(), false };
+  recipient.receiveMessage(m);
 }
 
-const vector<Message>& User::getInbox() const {
-  return inbox_;
+void User::receiveMessage(const Message& msg) {
+    inbox_.push_back(msg);
 }
 
 void User::markAsRead(size_t index) {

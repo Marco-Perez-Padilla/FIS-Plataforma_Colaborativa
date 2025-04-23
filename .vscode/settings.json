@@ -115,6 +115,7 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "list": "cpp",
-    "expected": "cpp"
+    "expected": "cpp",
+    "text_encoding": "cpp"
   }
 }
