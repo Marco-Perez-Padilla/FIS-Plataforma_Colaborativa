@@ -108,7 +108,11 @@ void LogInMenuAction(char &opt) {
           std::cerr << error.what() << std::endl;
           exit = true;
           break;
-        } 
+        } catch (const InvalidEmailException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        }
       }
       case 'S': {
         try {
@@ -123,6 +127,10 @@ void LogInMenuAction(char &opt) {
           exit = true;
           break;
         } catch (const AlreadyRegisteredException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        } catch (const InvalidEmailException& error) {
           std::cerr << error.what() << std::endl;
           exit = true;
           break;

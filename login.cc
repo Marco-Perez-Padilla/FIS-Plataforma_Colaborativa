@@ -103,6 +103,17 @@ std::string Decrypt(const std::string& encrypted, const std::string& key, int sh
 
 
 /**
+ * @brief Verifies if a given email is valid (but not if it exists)
+ * @param string email to be checked
+ * @return true if the format is valid, false otherwise
+ */
+bool CheckEmail(const std::string& email) {
+  std::regex pattern(R"(^(\d{10}@ull\.edu\.es|[a-zA-Z0-9._%+-]+@(ull\.es|gmail\.com))$)");
+  return std::regex_match(email, pattern);
+}
+
+
+/**
  * @brief Verifies if a password if valid. It must contain upper and lower case, number, special character and minimum of 8 size
  * @param string password to be checked 
  * @return true if the password is valid, false otherwise
@@ -200,7 +211,7 @@ void SignUpUser(const User& user, const std::string& password, const std::string
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
   const std::string encrypted_answer = Encrypt(copy_answer, key, shift);
 
-  passwd << user.getEmail() << ", " << encrypted_password << ", " << encrypted_answer << std::endl; 
+  passwd << user.getEmail() << ", " << encrypted_password << "," << encrypted_answer << " " << std::endl; 
 }
 
 
@@ -287,7 +298,6 @@ const std::string VerifyAnswer(const User& user, const std::string& answer, cons
 
       if (file_email == user.getEmail()) { 
         std::string decrypted_answer = Decrypt(encrypted_answer, key, shift);
-
         if (decrypted_answer == answer) {
           const std::string decrypted_password = Decrypt(encrypted_password, key, shift);
           return decrypted_password;
@@ -329,7 +339,7 @@ void ReplacePassword(const User& user, const std::string& new_password, const st
       }
       if (file_email == user.getEmail()) {
         std::string encrypted_password = Encrypt(new_password, key, shift);
-        outfile << file_email << ", " << encrypted_password << ", " << encrypted_answer << std::endl;
+        outfile << file_email << ", " << encrypted_password << "," << encrypted_answer << " " << std::endl;
       } else {
         outfile << line << std::endl;
       }
@@ -357,6 +367,9 @@ const User Register() {
   std::cin >> name;
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
+  if (CheckEmail(email) == false) {
+    throw InvalidEmailException();
+  }
   std::cout << "Enter password: ";
   std::cin >> password;
 
@@ -383,6 +396,9 @@ const User LogIn() {
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
+  if (CheckEmail(email) == false) {
+    throw InvalidEmailException();
+  }
   std::cout << "Enter password: ";
   std::cin >> password;
   
@@ -398,18 +414,28 @@ const User LogIn() {
  */
 bool RecoverPassword() {
   std::string email, name, password, answer;
-  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
-  std::cin >> email;
-
+  try {
+    std::cin >> email;
+    if (CheckEmail(email) == false) {
+      throw InvalidEmailException();
+    }
+  } catch (const InvalidEmailException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  }
+  
   User user(email, name);
 
   std::cout << "What's the name of your first pet? : ";
   std::cin >> answer;
 
   try {
-  const std::string password = VerifyAnswer(user, answer, password_file);
+    const std::string password = VerifyAnswer(user, answer, password_file);
+    std::cout << "The password is: " << password << std::endl;
+    return true;
   } catch (const OpenFileException& error) {
     std::cerr << error.what() << std::endl;
     return false;
@@ -417,9 +443,6 @@ bool RecoverPassword() {
     std::cerr << error.what() << std::endl;
     return false;
   }
-
-  std::cout << "The password is: " << password << std::endl;
-  return true;
 }
 
 
@@ -432,7 +455,15 @@ bool ChangePassword() {
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
-  std::cin >> email;
+  try {
+    std::cin >> email;
+    if (CheckEmail(email) == false) {
+      throw InvalidEmailException();
+    }
+  } catch (const InvalidEmailException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  }
   std::cout << "Enter old password: ";
   std::cin >> old_password;
   User user(email, name);
