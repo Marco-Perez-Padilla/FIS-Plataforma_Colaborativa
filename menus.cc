@@ -5,17 +5,18 @@
 ** Asignatura: Fundamentos de la Ingeniería del Software
 ** Curso: 2º
 ** Practica 6: Entrega de desarrollo ágil
-** Autores: Marco Pérez Padilla, /////
+** Autores: Eduardo Javier Marichal de la Fuente, Marco Pérez Padilla
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 21/04/2025
 
-** Archivo menus.h: Declaracion de las funciones de menus.
+** Archivo menus.cc: Implementacion de las funciones de menus.
 **
 ** Referencias:
 **      Enlaces de interes
 
 ** Historial de revisiones:
 **      21/04/2025 - Creacion (primera version) del codigo
+**      23/04/2025 - Primera version funcional - Implementacion de login y mensajes
 **/
 
 #include <iostream>
@@ -24,6 +25,7 @@
 
 #include "menus.h"
 #include "login.h"
+#include "exceptions.h"
 
 std::vector<User> users;
 User* currentUser = nullptr;
@@ -60,12 +62,14 @@ void LogInMenuDescription(char &opt) {
             << "L. Log in\n"
             << "S. Sign up\n"
             << "C. Change password\n"
+            << "R. Recover password"
             << "Q. Quit\n"
             << "Choose: ";
   std::cin >> opt;
 }
 
 void LogInMenuAction(char &opt) {
+  bool exit = false;
   do {
     clrscr();
     LogInMenuDescription(opt);
@@ -78,49 +82,74 @@ void LogInMenuAction(char &opt) {
         std::cin >> password;
         std::string pwd_file = "passwords.txt";
         User temp(email, email.substr(0, email.find('@')));
-        VerifyLogIn(temp, password, pwd_file);
-        // si llega aquí, login OK
-        auto it = std::find_if(users.begin(), users.end(),
+        try {
+          const User user = LogIn();
+          // si llega aquí, login OK
+          auto it = std::find_if(users.begin(), users.end(),
           [&](auto &u){ return u.getEmail() == email; });
-        if (it == users.end()) {
-          users.push_back(temp);
-          currentUser = &users.back();
-        } else {
-          currentUser = &*it;
-        }
-        std::cout << "Login successful. Press any key to continue…\n";
-        pressanykey();
-        return;
+          if (it == users.end()) {
+            users.push_back(temp);
+            currentUser = &users.back();
+          } else {
+            currentUser = &*it;
+          }
+          std::cout << "Login successful. Press any key to continue…\n";
+          pressanykey();
+      return;
+        } catch (const OpenFileException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        } catch (const NonRegisteredException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        } catch (const WrongPasswordException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        } 
       }
       case 'S': {
-        std::string name, email, password;
-        std::cout << "Name: ";
-        std::cin >> name;
-        std::cout << "Email: ";
-        std::cin >> email;
-        std::cout << "Password: ";
-        std::cin >> password;
-        std::string pwd_file = "passwords.txt";
-        User newU(email, name);
-        SignUpUser(newU, password, pwd_file);
-        users.push_back(newU);
-        currentUser = &users.back();
-        std::cout << "Sign up successful. Press any key to continue…\n";
-        pressanykey();
-        return;
+        try {
+          User newU = Register();
+          users.push_back(newU);
+          currentUser = &users.back();
+          std::cout << "Sign up successful. Press any key to continue…\n";
+          pressanykey();
+          return;
+        } catch (const OpenFileException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        } catch (const AlreadyRegisteredException& error) {
+          std::cerr << error.what() << std::endl;
+          exit = true;
+          break;
+        }
       }
       case 'C':
-        ChangePassword();
+        bool changed = ChangePassword();
+        if (changed == false) {
+          exit = true;
+          break;
+        }
         std::cout << "Password changed. Press any key…\n";
         pressanykey();
         break;
+      case 'R':
+        bool recovered = RecoverPassword();
+        if (recovered == false) {
+          exit = true;
+          break;
+        }
       case 'Q':
         std::exit(0);
       default:
         std::cout << "Invalid option.\n";
         pressanykey();
     }
-  } while (true);
+  } while (exit == false);
 }
 
 void MainMenuDescription(char &opt) {

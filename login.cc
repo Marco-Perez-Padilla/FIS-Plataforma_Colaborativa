@@ -352,13 +352,10 @@ void ReplacePassword(const User& user, const std::string& new_password, const st
 
 /**
  * @brief Registers a user, storaging it on the data base and password file
- * @return true if the register process was correct, false otherwise
+ * @return new User registered
  */
-bool Register() {
-  std::string name;
-  std::string email;
-  std::string password;
-  std::string answer;
+const User Register() {
+  std::string name, email, password, answer;
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
   std::string data_base = "data_base.txt";
 
@@ -374,16 +371,10 @@ bool Register() {
   std::cout << "What's the name of your first pet? : ";
   std::cin >> answer;
 
-  try {
-    SignUpUser(user, password, answer, password_file, data_base);
-  } catch (const OpenFileException& error) {
-    std::cerr << error.what() << std::endl;
-    return false;
-  } catch (const AlreadyRegisteredException& error) {
-    std::cerr << error.what() << std::endl;
-    return false;
-  }
-  return true;
+  
+  SignUpUser(user, password, answer, password_file, data_base);
+  
+  return user;
 }
 
 
@@ -392,9 +383,7 @@ bool Register() {
  * @return User logged in
  */
 const User LogIn() {
-  std::string email;
-  std::string name;
-  std::string password;
+  std::string email, name, password;
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
@@ -413,10 +402,7 @@ const User LogIn() {
  * @return true if the password could be recovered, false otherwise
  */
 bool RecoverPassword() {
-  std::string email;
-  std::string name;
-  std::string password;
-  std::string answer;
+  std::string email, name, password, answer;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
@@ -447,10 +433,7 @@ bool RecoverPassword() {
  * @return true if the password could be changed, false otherwise
  */
 bool ChangePassword() {  
-  std::string email;
-  std::string old_password;
-  std::string new_password;
-  std::string name;
+  std::string email, old_password, new_password, name;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
