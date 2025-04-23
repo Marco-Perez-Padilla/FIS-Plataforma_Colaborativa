@@ -23,15 +23,20 @@
 
 #include <string>
 
+#include "users.h"
+
 std::string KeyCypher(const std::string& password, const std::string& key);
 std::string CaesarCypher(const std::string& text, int shift);
 std::string Encrypt(const std::string& password, const std::string& key, int shift);
 std::string Decrypt(const std::string& encrypted, const std::string& key, int shift);
 bool VerifyValidPassword(const std::string& password);
-void SignUpUser(const std::string& email, const std::string& password, std::string& password_file);
-void VerifyLogIn(const std::string& email, const std::string& password, const std::string& password_file);
+bool isSignedUp(const User& user);
+void SignUpUser(const User& user, const std::string& password, std::string& password_file);
+void VerifyLogIn(const User& user, const std::string& password, const std::string& password_file);
 void Register();
-void LogIn();
-void ChangePassword() ;
+const User LogIn();
+void ChangePassword();
+void RecoverPassword();
+
 
 #endif
