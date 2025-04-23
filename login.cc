@@ -267,6 +267,7 @@ const User LogIn() {
   VerifyLogIn(user, password, password_file); 
   // Conceder acceso. Se controla en el main. Yo mandaría a menú principal, y si la contraseña es incorrecta que vuelva al menu de login
   // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
+  return user;
 }
 
 
