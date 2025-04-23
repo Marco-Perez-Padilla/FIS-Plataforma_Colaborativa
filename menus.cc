@@ -62,7 +62,7 @@ void LogInMenuDescription(char &opt) {
             << "L. Log in\n"
             << "S. Sign up\n"
             << "C. Change password\n"
-            << "R. Recover password"
+            << "R. Recover password\n"
             << "Q. Quit\n"
             << "Choose: ";
   std::cin >> opt;
@@ -75,27 +75,27 @@ void LogInMenuAction(char &opt) {
     LogInMenuDescription(opt);
     switch (opt) {
       case 'L': {
-        std::string email, password;
-        std::cout << "Email: ";
-        std::cin >> email;
-        std::cout << "Password: ";
-        std::cin >> password;
-        std::string pwd_file = "passwords.txt";
-        User temp(email, email.substr(0, email.find('@')));
+        //std::string email, password;
+        //std::cout << "Email: ";
+        //std::cin >> email;
+        //std::cout << "Password: ";
+        //std::cin >> password;
+        //std::string pwd_file = "passwords.txt";
+        //User temp(email, email.substr(0, email.find('@')));
         try {
           const User user = LogIn();
           // si llega aquí, login OK
-          auto it = std::find_if(users.begin(), users.end(),
-          [&](auto &u){ return u.getEmail() == email; });
-          if (it == users.end()) {
-            users.push_back(temp);
-            currentUser = &users.back();
-          } else {
-            currentUser = &*it;
-          }
+          //auto it = std::find_if(users.begin(), users.end(),
+          //[&](auto &u){ return u.getEmail() == email; });
+          //if (it == users.end()) {
+            //users.push_back(user);
+            //currentUser = &users.back();
+          //} else {
+            //currentUser = &*it;
+          //}
           std::cout << "Login successful. Press any key to continue…\n";
           pressanykey();
-      return;
+          return;
         } catch (const OpenFileException& error) {
           std::cerr << error.what() << std::endl;
           exit = true;
@@ -128,7 +128,7 @@ void LogInMenuAction(char &opt) {
           break;
         }
       }
-      case 'C':
+      case 'C': {
         bool changed = ChangePassword();
         if (changed == false) {
           exit = true;
@@ -137,12 +137,14 @@ void LogInMenuAction(char &opt) {
         std::cout << "Password changed. Press any key…\n";
         pressanykey();
         break;
-      case 'R':
+      }
+      case 'R': {
         bool recovered = RecoverPassword();
         if (recovered == false) {
           exit = true;
           break;
         }
+      }
       case 'Q':
         std::exit(0);
       default:
@@ -150,6 +152,7 @@ void LogInMenuAction(char &opt) {
         pressanykey();
     }
   } while (exit == false);
+  std::exit(1);
 }
 
 void MainMenuDescription(char &opt) {

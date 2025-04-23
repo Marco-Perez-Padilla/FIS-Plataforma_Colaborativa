@@ -34,7 +34,7 @@ bool VerifyValidPassword(const std::string& password);
 bool isSignedUp(const User& user, const std::string& password_file);
 void SignUpUser(const User& user, const std::string& password, std::string& password_file, const std::string& answer);
 bool VerifyLogIn(const User& user, const std::string& password, const std::string& password_file);
-const std::string& VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file);
+const std::string VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file);
 const User Register();
 const User LogIn();
 bool ChangePassword();

@@ -226,8 +226,6 @@ bool VerifyLogIn(const User& user, const std::string& password, const std::strin
   const std::string key = "CrEdITs";  
   const int shift = 6;            
 
-  bool found = false;
-
   while (std::getline(passwd, line)) {
     std::stringstream ss(line);
     std::string file_email, encrypted_password, encrypted_answer;
@@ -241,7 +239,6 @@ bool VerifyLogIn(const User& user, const std::string& password, const std::strin
       }
 
       if (file_email == user.getEmail()) { 
-        found = true;
         std::string decrypted_password = Decrypt(encrypted_password, key, shift);
 
         if (decrypted_password == password) {
@@ -261,7 +258,7 @@ bool VerifyLogIn(const User& user, const std::string& password, const std::strin
  * @param string name of the file that stores the encrypted passwords and answers
  * @return string password of the user if the answer was correct
  */
-const std::string& VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file) {
+const std::string VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file) {
   std::ifstream passwd(password_file);
 
   if (!passwd.is_open()) {
@@ -276,8 +273,6 @@ const std::string& VerifyAnswer(const User& user, const std::string& answer, con
   const std::string key = "CrEdITs";  
   const int shift = 6;            
 
-  bool found = false;
-
   while (std::getline(passwd, line)) {
     std::stringstream ss(line);
     std::string file_email, encrypted_password, encrypted_answer;
@@ -291,7 +286,6 @@ const std::string& VerifyAnswer(const User& user, const std::string& answer, con
       }
 
       if (file_email == user.getEmail()) { 
-        found = true;
         std::string decrypted_answer = Decrypt(encrypted_answer, key, shift);
 
         if (decrypted_answer == answer) {
@@ -364,6 +358,7 @@ const User Register() {
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter password: ";
+  std::cin >> password;
 
   User user(email, name);
 
@@ -434,7 +429,7 @@ bool RecoverPassword() {
  */
 bool ChangePassword() {  
   std::string email, old_password, new_password, name;
-  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
