@@ -117,6 +117,37 @@ bool VerifyValidPassword(const std::string& password) {
 }
 
 
+bool isSignedUp(const User& user, const std::string& password_file ) {
+  std::ifstream passwd(password_file);
+
+  if (!passwd.is_open()) {
+    // ERRROR
+  }
+
+  std::string line;
+
+  bool found = false;
+
+  while (std::getline(passwd, line)) {
+    std::stringstream ss(line);
+    std::string file_email, encrypted_password;
+
+    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password)) {
+      if (file_email == user.getEmail()) {  // user.getEmail()
+        found = true;
+        break;
+      }
+    }
+  }
+  
+  if (!found) {
+    return false;
+  }
+
+  return true;
+}
+
+
 /**
  * @brief Sign ups a user with email and password (This function is on construction, it'll have to assign roles to the user)
  * @param string user // CAMBIAR POR STRUCT U OBJECTO DE LA CLASE USER
@@ -147,7 +178,7 @@ void SignUpUser(const User& user, const std::string& password, std::string& pass
 
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
 
-  passwd << user.getEmail() << ", " << encrypted_password << std::endl; //user.getEmai()
+  passwd << user.getEmail() << ", " << encrypted_password << std::endl; 
 }
 
 
@@ -208,13 +239,14 @@ void Register() {
   std::string name;
   std::string email;
   std::string password;
-  std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
   std::cout << "Enter name: ";
   std::cin >> name;
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter password: ";
-  SignUpUser(email, password, password_file);
+  User user(email, name);
+  SignUpUser(user, password, password_file);
   // Además, añadir el usuario con su nombre y demás en una base de datos. Mi idea es que internamente se use email y contraseña para iniciar sesion, y que dentro aparezca username
   // para lo que necesitamos un archivo que sirva de base de datos y relacione mínimo username y email
 }
@@ -223,16 +255,29 @@ void Register() {
 /**
  * @brief Allows or denies the login
  */
-void LogIn() {
+const User LogIn() {
   std::string email;
+  std::string name;
+  std::string password;
+  std::string password_file = "password_maneger.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
+  std::cin >> email;
+  std::cout << "Enter password: ";
+  User user(email, name);
+  VerifyLogIn(user, password, password_file); 
+  // Conceder acceso. Se controla en el main. Yo mandaría a menú principal, y si la contraseña es incorrecta que vuelva al menu de login
+  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
+}
+
+
+void RecoverPassword() {
+  std::string email;
+  std::string name;
   std::string password;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
-  std::cout << "Enter password: ";
-  VerifyLogIn(email, password, password_file); 
-  // Conceder acceso. Se controla en el main. Yo mandaría a menú principal, y si la contraseña es incorrecta que vuelva al menu de login
-  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
+  User user(email, name);
 }
 
 
@@ -247,13 +292,18 @@ void LogIn() {
  */
 void ChangePassword() {  
   std::string email;
-  std::string password;
+  std::string old_password;
+  std::string new_password;
+  std::string name;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter old password: ";
-  VerifyLogIn(email, password, password_file);
+  std::cin >> old_password;
+  User user(email, name);
+  VerifyLogIn(user, old_password, password_file);
   // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
   std::cout << "Enter new password: ";
-  SignUpUser(email, password, password_file);
+  std::cin >> new_password;
+  SignUpUser(user, new_password, password_file);
 }
