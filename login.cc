@@ -5,7 +5,7 @@
 ** Asignatura: Fundamentos de la Ingeniería del Software
 ** Curso: 2º
 ** Practica 6: Entrega de desarrollo ágil
-** Autores: Marco Pérez Padilla, /////
+** Autores: Marco Pérez Padilla, 
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 21/04/2025
 
@@ -16,6 +16,7 @@
 
 ** Historial de revisiones:
 **      21/04/2025 - Creacion (primera version) del codigo
+**      23/04/2025 - Adicion funciones de recuperacion de contraseña y excepciones
 **/
 
 #include <iostream>
@@ -26,6 +27,8 @@
 #include "menus.h"
 #include "login.h"
 #include "users.h"
+#include "exceptions.h"
+
 
 /**
  * @brief Cyphers a password given a preselected key
@@ -117,11 +120,17 @@ bool VerifyValidPassword(const std::string& password) {
 }
 
 
-bool isSignedUp(const User& user, const std::string& password_file ) {
+/**
+ * @brief Verifies is a user is already signed up or not
+ * @param User to be verified
+ * @param string name of the password file
+ * @return true if registered, false otherwise
+ */
+bool isSignedUp(const User& user, const std::string& password_file) {
   std::ifstream passwd(password_file);
 
   if (!passwd.is_open()) {
-    // ERRROR
+    throw OpenFileException(password_file);
   }
 
   std::string line;
@@ -133,7 +142,7 @@ bool isSignedUp(const User& user, const std::string& password_file ) {
     std::string file_email, encrypted_password;
 
     if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password)) {
-      if (file_email == user.getEmail()) {  // user.getEmail()
+      if (file_email == user.getEmail()) { 
         found = true;
         break;
       }
@@ -149,17 +158,29 @@ bool isSignedUp(const User& user, const std::string& password_file ) {
 
 
 /**
- * @brief Sign ups a user with email and password (This function is on construction, it'll have to assign roles to the user)
- * @param string user // CAMBIAR POR STRUCT U OBJECTO DE LA CLASE USER
+ * @brief Sign ups a user with email and password 
+ * @param User user to be signed up 
  * @param string password of the user
+ * @param string recovering password answer
  * @param string name of the file that stores the encrypted passwords
+ * @param string name of the data base file
  */
-void SignUpUser(const User& user, const std::string& password, std::string& password_file) {  // LA IDEA ES PEDIR POR STD::CIN NOMBRE, EMAIL Y CONTRASEÑA EN EL MAIN. 
-  std::string copy_password = password;                                                              // crear struct (clase) con nombre e email, pasar el struct como parametro a esta funcion
+void SignUpUser(const User& user, const std::string& password, const std::string& answer, std::string& password_file, std::string& data_base) {  
+  std::string copy_password = password;     
+  std::string copy_answer = answer;                                                         
   std::ofstream passwd(password_file, std::ios::app);
+  std::ofstream db (data_base, std::ios::app);
 
   if (!passwd.is_open()) {
-    // ERROR
+    throw OpenFileException(password_file);
+  } 
+
+  if (isSignedUp(user, password_file)) {
+    throw AlreadyRegisteredException();
+  }
+
+  if (!db.is_open()) {
+    throw OpenFileException(data_base);
   } 
 
   if (VerifyValidPassword(copy_password) == false) {
@@ -173,39 +194,45 @@ void SignUpUser(const User& user, const std::string& password, std::string& pass
     } while (correct_password == false);
   }
   
-  const std::string key = "KEY";  // LO QUE SEA
-  const int shift = 3;            // LO QUE SEA
+  const std::string key = "CrEdITs";  
+  const int shift = 6;            
 
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
+  const std::string encrypted_answer = Encrypt(copy_answer, key, shift);
 
-  passwd << user.getEmail() << ", " << encrypted_password << std::endl; 
+  passwd << user.getEmail() << ", " << encrypted_password << ", " << encrypted_answer << std::endl; 
 }
 
 
 /**
- * @brief Checks if a login is valid or not comparing the given password with the encrypted one (This function is on construction, it'll have to look if the user exists)
- * @param string user // CAMBIAR POR STRUCT U OBJECTO DE LA CLASE USER
+ * @brief Checks if a login is valid or not comparing the given password with the encrypted one 
+ * @param User user to be logged in 
  * @param string given password
  * @param string name of the file that stores the encrypted passwords
+ * @return true if the user can be logged in, false otherwise
  */
-void VerifyLogIn(const User& user, const std::string& password, const std::string& password_file) {
+bool VerifyLogIn(const User& user, const std::string& password, const std::string& password_file) {
   std::ifstream passwd(password_file);
 
   if (!passwd.is_open()) {
-    // ERRROR
+    throw OpenFileException(password_file);
+  }
+
+  if (!isSignedUp(user, password_file)) {
+    throw NonRegisteredException();
   }
 
   std::string line;
-  const std::string key = "KEY";  // LO QUE SEA
-  const int shift = 3;            // LO QUE SEA
+  const std::string key = "CrEdITs";  
+  const int shift = 6;            
 
   bool found = false;
 
   while (std::getline(passwd, line)) {
     std::stringstream ss(line);
-    std::string file_email, encrypted_password;
+    std::string file_email, encrypted_password, encrypted_answer;
 
-    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password)) {
+    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password, ',') && std::getline(ss, encrypted_answer)) {
       if (!file_email.empty() && file_email.back() == ' ') {
         file_email.pop_back();
       }
@@ -213,98 +240,234 @@ void VerifyLogIn(const User& user, const std::string& password, const std::strin
         encrypted_password.erase(0, 1);
       }
 
-      if (file_email == user.getEmail()) {  // user.getEmail()
+      if (file_email == user.getEmail()) { 
         found = true;
         std::string decrypted_password = Decrypt(encrypted_password, key, shift);
 
         if (decrypted_password == password) {
-          // CONTRASEÑA CORRECTA
+          return true;
         } else {
-          // ERROR CONTRASEÑA INCORRECTA
+          throw WrongPasswordException();
         }
-        break;
       }
     }
   }
-  
-  if (!found) {
-    // USUARIO NO ENCONTRADO -> NO REGISTRADO
+}
+
+
+/**
+ * @brief Verifies is the answer to the recover password question is valid or not
+ * @param string given answer to the question
+ * @param string name of the file that stores the encrypted passwords and answers
+ * @return string password of the user if the answer was correct
+ */
+const std::string& VerifyAnswer(const User& user, const std::string& answer, const std::string& password_file) {
+  std::ifstream passwd(password_file);
+
+  if (!passwd.is_open()) {
+    throw OpenFileException(password_file);
+  }
+
+  if (!isSignedUp(user, password_file)) {
+    throw NonRegisteredException();
+  }
+
+  std::string line;
+  const std::string key = "CrEdITs";  
+  const int shift = 6;            
+
+  bool found = false;
+
+  while (std::getline(passwd, line)) {
+    std::stringstream ss(line);
+    std::string file_email, encrypted_password, encrypted_answer;
+
+    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password, ',') && std::getline(ss, encrypted_answer)) {
+      if (!file_email.empty() && file_email.back() == ' ') {
+        file_email.pop_back();
+      }
+      if (!encrypted_password.empty() && encrypted_password.front() == ' ') {
+        encrypted_password.erase(0, 1);
+      }
+
+      if (file_email == user.getEmail()) { 
+        found = true;
+        std::string decrypted_answer = Decrypt(encrypted_answer, key, shift);
+
+        if (decrypted_answer == answer) {
+          const std::string decrypted_password = Decrypt(encrypted_password, key, shift);
+          return decrypted_password;
+        } else {
+          throw WrongAnswerException();
+        }
+      }
+    }
   }
 }
 
+
+/**
+ * @brief Replaces a password for a new one
+ * @param User user whose password will be changed
+ * @param string new password
+ * @param string name of the file that stores the encrypted passwords and answers
+ */
+void ReplacePassword(const User& user, const std::string& new_password, const std::string& password_file) {
+  std::ifstream infile(password_file);
+  std::ofstream outfile("temp.txt");
+  const std::string key = "CrEdITs";
+  const int shift = 6;
+
+  std::ifstream passwd(password_file);
+
+  if (!infile.is_open()) {
+    throw OpenFileException(password_file);
+  }
+
+  std::string line;
+  while (std::getline(infile, line)) {
+    std::stringstream ss(line);
+    std::string file_email, encrypted, encrypted_answer;
+
+    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted, ',') && std::getline(ss, encrypted_answer, ',')) {
+      if (!file_email.empty() && file_email.back() == ' ') {
+        file_email.pop_back();
+      }
+      if (file_email == user.getEmail()) {
+        std::string encrypted_password = Encrypt(new_password, key, shift);
+        outfile << file_email << ", " << encrypted_password << ", " << encrypted_answer << std::endl;
+      } else {
+        outfile << line << std::endl;
+      }
+    }
+  }
+
+  infile.close();
+  outfile.close();
+
+  std::remove(password_file.c_str());
+  std::rename("temp.txt", password_file.c_str());
+}
+
+
 /**
  * @brief Registers a user, storaging it on the data base and password file
+ * @return true if the register process was correct, false otherwise
  */
-void Register() {
+bool Register() {
   std::string name;
   std::string email;
   std::string password;
+  std::string answer;
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string data_base = "data_base.txt";
+
   std::cout << "Enter name: ";
   std::cin >> name;
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter password: ";
+
   User user(email, name);
-  SignUpUser(user, password, password_file);
-  // Además, añadir el usuario con su nombre y demás en una base de datos. Mi idea es que internamente se use email y contraseña para iniciar sesion, y que dentro aparezca username
-  // para lo que necesitamos un archivo que sirva de base de datos y relacione mínimo username y email
+
+  std::cout << "Answer to the next security question (question backup)" << std::endl;
+  std::cout << "What's the name of your first pet? : ";
+  std::cin >> answer;
+
+  try {
+    SignUpUser(user, password, answer, password_file, data_base);
+  } catch (const OpenFileException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  } catch (const AlreadyRegisteredException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  }
+  return true;
 }
 
 
 /**
  * @brief Allows or denies the login
+ * @return User logged in
  */
 const User LogIn() {
   std::string email;
   std::string name;
   std::string password;
-  std::string password_file = "password_maneger.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+  std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter password: ";
+  std::cin >> password;
+  
   User user(email, name);
   VerifyLogIn(user, password, password_file); 
-  // Conceder acceso. Se controla en el main. Yo mandaría a menú principal, y si la contraseña es incorrecta que vuelva al menu de login
-  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
   return user;
 }
 
 
-void RecoverPassword() {
+/**
+ * @brief Allows a user to recover the password
+ * @return true if the password could be recovered, false otherwise
+ */
+bool RecoverPassword() {
   std::string email;
   std::string name;
   std::string password;
+  std::string answer;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
+
   User user(email, name);
+
+  std::cout << "What's the name of your first pet? : ";
+  std::cin >> answer;
+
+  try {
+  const std::string password = VerifyAnswer(user, answer, password_file);
+  } catch (const OpenFileException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  } catch (const WrongAnswerException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  }
+
+  std::cout << "The password is: " << password << std::endl;
+  return true;
 }
-
-
-// Tampoco estaría mal función de recuperar contraseña. Lo he pensado y he encontrado tres enfoques:
-//    1. Vamos a lo cutre y que se recupere tan solo poniendo email (cualquiera con conocimiento del email puede averiguar las contraseñas)
-//    2. Implementamos en la base de datos respuestas a preguntas (como antes hacía Google. Te hacían una pregunta y si respondías lo mismo te mandaban la contraseña)
-//    3. Nos metemos con recuperación de contraseñas de verdad mandando emails
 
 
 /**
  * @brief Allows the change of a password
+ * @return true if the password could be changed, false otherwise
  */
-void ChangePassword() {  
+bool ChangePassword() {  
   std::string email;
   std::string old_password;
   std::string new_password;
   std::string name;
   std::string password_file = "nombre_archivo_contraseña.txt"; // Creo que es mejor ponerlo en un #define o en una macro
+
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
   std::cin >> email;
   std::cout << "Enter old password: ";
   std::cin >> old_password;
   User user(email, name);
+
   VerifyLogIn(user, old_password, password_file);
-  // Como en verifylogin hay dos posibles errores, haria try-catch con una clase the errores personalizada (no es mucho trabajo)
   std::cout << "Enter new password: ";
   std::cin >> new_password;
-  SignUpUser(user, new_password, password_file);
+
+  try {
+    ReplacePassword(user, new_password, password_file);
+  } catch (const OpenFileException& error) {
+    std::cerr << error.what() << std::endl;
+    return false;
+  }
+  return true;
 }
