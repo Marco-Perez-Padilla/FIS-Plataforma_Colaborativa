@@ -34,8 +34,8 @@ class User {
   User() = default;
   User(const std::string& email, const std::string& username, const int short role = 0) : email_(email), username_(username), role_(role) {} // Rol por defecto cambiarlo a estudiante
   // Getters
-  std::string& getEmail() {return email_;}
-  std::string& getUsername() {return username_;}
+  const std::string& getEmail() const {return email_;}
+  const std::string& getUsername() const {return username_;}
 };
 
 #endif

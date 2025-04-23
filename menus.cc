@@ -85,12 +85,12 @@ void LogInMenuAction (char &opcion) {
         LogIn(); // Hacer try-catch aqui
         std::cout << "Log in successful. Press any key to continue" << std::endl;
         pressanykey();
-        clrscr();
         // Mandar a otro menú o algo
+        MainMenuAction(option);
       break;
 
       case 'S':
-        Register();
+        Register(); // Comprobar si ya estaba registrado antes
         std::cout << "Sign up successful. Press any key to continue" << std::endl;
         pressanykey();
       break;

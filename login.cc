@@ -25,7 +25,7 @@
 
 #include "menus.h"
 #include "login.h"
-
+#include "users.h"
 
 /**
  * @brief Cyphers a password given a preselected key
@@ -123,7 +123,7 @@ bool VerifyValidPassword(const std::string& password) {
  * @param string password of the user
  * @param string name of the file that stores the encrypted passwords
  */
-void SignUpUser(const std::string& user, const std::string& password, std::string& password_file) {  // LA IDEA ES PEDIR POR STD::CIN NOMBRE, EMAIL Y CONTRASEÑA EN EL MAIN. 
+void SignUpUser(const User& user, const std::string& password, std::string& password_file) {  // LA IDEA ES PEDIR POR STD::CIN NOMBRE, EMAIL Y CONTRASEÑA EN EL MAIN. 
   std::string copy_password = password;                                                              // crear struct (clase) con nombre e email, pasar el struct como parametro a esta funcion
   std::ofstream passwd(password_file, std::ios::app);
 
@@ -147,7 +147,7 @@ void SignUpUser(const std::string& user, const std::string& password, std::strin
 
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
 
-  passwd << user << ", " << encrypted_password << std::endl; //user.getEmai()
+  passwd << user.getEmail() << ", " << encrypted_password << std::endl; //user.getEmai()
 }
 
 
@@ -157,7 +157,7 @@ void SignUpUser(const std::string& user, const std::string& password, std::strin
  * @param string given password
  * @param string name of the file that stores the encrypted passwords
  */
-void VerifyLogIn(const std::string& user, const std::string& password, const std::string& password_file) {
+void VerifyLogIn(const User& user, const std::string& password, const std::string& password_file) {
   std::ifstream passwd(password_file);
 
   if (!passwd.is_open()) {
@@ -182,7 +182,7 @@ void VerifyLogIn(const std::string& user, const std::string& password, const std
         encrypted_password.erase(0, 1);
       }
 
-      if (file_email == user) {  // user.getEmail()
+      if (file_email == user.getEmail()) {  // user.getEmail()
         found = true;
         std::string decrypted_password = Decrypt(encrypted_password, key, shift);
 
