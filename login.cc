@@ -211,7 +211,7 @@ void SignUpUser(const User& user, const std::string& password, const std::string
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
   const std::string encrypted_answer = Encrypt(copy_answer, key, shift);
 
-  passwd << user.getEmail() << ", " << encrypted_password << "," << encrypted_answer << " " << std::endl; 
+  passwd << user.getEmail() << ", " << encrypted_password << "," << encrypted_answer << std::endl; 
 }
 
 
@@ -328,6 +328,18 @@ void ReplacePassword(const User& user, const std::string& new_password, const st
     throw OpenFileException(password_file);
   }
 
+  std::string copy_password = new_password;
+  if (VerifyValidPassword(copy_password) == false) {
+    bool correct_password = false;
+
+    do {
+      std::cout << "Error, invalid password. Password must contain upper case, lower case, number, special charater and minimum size 8." << std::endl;
+      std::cout << "Please try again: ";
+      std::cin >> copy_password;
+      correct_password = VerifyValidPassword(copy_password);
+    } while (correct_password == false);
+  }
+
   std::string line;
   while (std::getline(infile, line)) {
     std::stringstream ss(line);
@@ -339,7 +351,7 @@ void ReplacePassword(const User& user, const std::string& new_password, const st
       }
       if (file_email == user.getEmail()) {
         std::string encrypted_password = Encrypt(new_password, key, shift);
-        outfile << file_email << ", " << encrypted_password << "," << encrypted_answer << " " << std::endl;
+        outfile << file_email << ", " << encrypted_password << "," << encrypted_answer << std::endl;
       } else {
         outfile << line << std::endl;
       }
