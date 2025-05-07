@@ -45,23 +45,26 @@ enum Status {
 class Task {
  private:
   std::string email_;
-  std::string name_;
+  std::string title_;
   std::chrono::year_month_day due_date_;
-  Status status_;
-  Priority priority_;
   //HU-8 Nuevo
   std::set<std::string> tags_;
   std::string description_;
   //HU-8 Nuevo fin
+  Status status_;
+  Priority priority_;
  public:
   // Constructors (HU-08 -> Se agrega al constructor un parámetro de descripción) 
-  Task(std::string email, std::string name, std::chrono::year_month_day due_date, std::string description, Status status = Status::pending, Priority priority = Priority::low) 
-  : email_(email), name_(name), due_date_(due_date), status_(status), priority_(priority) {}
+  Task(std::string email, std::string title, std::chrono::year_month_day due_date, std::string description, Status status = Status::pending, Priority priority = Priority::low) 
+  : email_(email), title_(title), due_date_(due_date), description_(description), status_(status), priority_(priority) {}
   // Getters
   const std::string& getUserEmail() const {return email_;}
+  const std::string& getTitle() const {return title_;}
   const std::chrono::year_month_day& getDueDate() const {return due_date_;}
   const Status& getStatus() const {return status_;}
   const Priority& getPriority() const {return priority_;}
+  const std::set<std::string>& getTags() const {return tags_;}
+  const std::string& getDescription() const {return description_;}
   // HU-08: Sería conveniente añadir Setters? 
   // Manage Task methods
   void ChangeDueDate();
@@ -81,7 +84,7 @@ class Task {
   void Show() const;
   //HU-8 Nuevo fin
 };
-
+std::ostream& operator<<(std::ostream& os, const Task& task);
 
 std::string FormatDate(std::chrono::year_month_day); // Para imprimir una fecha, usar esta funcion, para poder imprimir el string
 Task CreateTask(const std::string&);
