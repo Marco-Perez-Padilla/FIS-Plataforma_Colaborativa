@@ -60,6 +60,71 @@ void clrscr() {
   system(CLEAR);
 }
 
+//HU-08
+void ShowTasksByTag(const std::vector<Task>& tareas) {
+  std::string etiqueta;
+  std::cout << "Enter tag: ";
+  std::getline(std::cin, etiqueta);
+
+  auto filtradas = FilterByTag(tareas, etiqueta);
+  if (filtradas.empty()) {
+    std::cout << "No tasks found with tag '" << etiqueta << "'.\n";
+  } else {
+    std::cout << filtradas.size() << " tasks found:\n";
+    for (const auto& t : filtradas)
+      t.Show(); 
+  }
+}
+
+void ShowTasksByKeyword(const std::vector<Task>& tareas) {
+  std::string palabra;
+  std::cout << "Enter keyword: ";
+  std::getline(std::cin, palabra);
+
+  auto filtradas = FilterByKeyword(tareas, palabra);
+  if (filtradas.empty()) {
+    std::cout << "No tasks found with keyword '" << palabra << "'.\n";
+  } else {
+    std::cout << filtradas.size() << " tasks found:\n";
+    for (const auto& t : filtradas)
+      t.Show();
+  }
+}
+
+void TaskSearch() {
+  //Falta implementar la funcion que carga las tareas, se podría implementar de la forma que se quiera
+  std::vector<Task> tareasUsuario = LoadTasksFromFile(currentUser->getEmail());
+  if (tareasUsuario.empty()) {
+    std::cout << "You don't have any tasks.\n";
+    pressanykey();
+    return;
+  }
+
+  char opcion;
+  std::cout << "Search by:\n"
+            << "T. Tag\n"
+            << "K. Keyword\n"
+            << "Choose: ";
+  std::cin >> opcion;
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+  switch (opcion) {
+    case 'T':
+    case 't':
+      ShowTasksByTag(tareasUsuario);
+      break;
+    case 'K':
+    case 'k':
+      ShowTasksByKeyword(tareasUsuario);
+      break;
+    default:
+      std::cout << "Invalid option.\n";
+      break;
+  }
+
+  pressanykey();
+}
+// HU-08 FIN
 void LogInMenuDescription(char &opt) {
   std::cout << "=== LOGIN MENU ===\n"
             << "L. Log in\n"
@@ -250,6 +315,12 @@ void MainMenuAction(char &opt) {
         pressanykey();
         break;
       }
+      //HU-08 Inicio
+      case 'S': {
+        TaskSearch();
+        break;
+      }
+      //HU-08 Fin
       case 'Q':
         std::exit(0);
       default:

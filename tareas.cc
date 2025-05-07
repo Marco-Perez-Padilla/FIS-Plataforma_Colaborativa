@@ -83,12 +83,15 @@ void Task::SaveTask() {
 
 
 Task CreateTask(const std::string& email) {
-  std::string name;
+  std::string name, description;
   int y, m, d;
 
   std::cout << "Introduce nombre de la tarea: ";
   std::cin >> name;
-
+  //HU-08 Nuevo
+  std::cout << "Introduce una breve descripción de la tarea: ";
+  std::cin >> description;
+  //HU-08 Fin
   std::cout << "Introduce fecha de entrega (YYYY MM DD): ";
   std::cin >> y >> m >> d;
 
@@ -97,7 +100,97 @@ Task CreateTask(const std::string& email) {
     std::chrono::month{m},
     std::chrono::day{d}
   };
+  Task new_task(email, name, date, description);
 
-  Task new_task(email, name, date);
+  //HU-08 Nuevo
+  std::cout << "¿Quieres añadir etiquetas a la tarea? (y/n): ";
+  char opt;
+  std::cin >> opt;
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+  if (opt == 'y' || opt == 'Y') {
+      std::string tag;
+      while (true) {
+           std::cout << "Enter tag (or type 'done' to finish): ";
+           std::getline(std::cin, tag);
+           if (tag == "done") break;
+           if (tag.empty()) {
+               std::cout << "Tag cannot be empty.\n";
+               continue;
+           }
+           new_task.AddTag(tag);
+       }
+  }
+  //HU-08 FIN
   return new_task;
 }
+
+//HU-8 Nuevo
+void Task::AddTag(const std::string& tag) {
+    tags_.insert(tag);
+}
+
+void Task::RemoveTag(const std::string& tag) {
+    tags_.erase(tag);
+}
+
+bool Task::HasTag(const std::string& tag) const {
+    return tags_.find(tag) != tags_.end();
+}
+
+bool Task::ContainsKeyword(const std::string& keyword) const {
+    return name_.find(keyword) != std::string::npos ||
+           description_.find(keyword) != std::string::npos;
+}
+
+void Task::Show() const {
+    std::cout << "Title: " << titulo << "\nDescription: " << descripcion << "\nTags: ";
+    for (const auto& tag : tags)
+        std::cout << "[" << tag << "] ";
+    std::cout << "\n";
+}
+
+
+std::vector<Task> FilterByTag(const std::vector<Task>& tasks, const std::string& tag) {
+    std::vector<Task> result;
+    for (const auto& task : tasks) {
+        if (task.HasTag(tag))
+            result.push_back(task);
+    }
+    return result;
+}
+
+std::vector<Task> FilterByKeyword(const std::vector<Task>& tasks, const std::string& keyword) {
+    std::vector<Task> result;
+    for (const auto& task : tasks) {
+        if (task.ContainsKeyword(keyword))
+            result.push_back(task);
+    }
+    return result;
+}
+
+// Observación: Es posible que también se pueda hacer llamando al constructor directamente
+// Pero haciendo los static_cast fuera.
+std::vector<Task> LoadTasksFromFile(const std::string& email) {
+  std::vector<Task> tasks;
+  std::ifstream file(email + "/tasks.txt");
+
+  if (!file.is_open()) {
+    std::cerr << "Could not open task file for user: " << email << "\n";
+    return tasks;
+  }
+
+  int status, priority, year, month, day;
+  while (file >> status >> priority >> year >> month >> day) { //TO DO: Meter también los otros atributos
+    Task task(email, "N/A", std::chrono::year{year}/month/day); // Nombre se sustituirá si es necesario
+    task.SetStatus(static_cast<Task::Status>(status));
+    task.SetPriority(static_cast<Task::Priority>(priority));
+    // TO DO: Leer nombre, descripción y tags.
+    tasks.push_back(task);
+  }
+
+  return tasks;
+}
+
+
+ //HU-8 FIN

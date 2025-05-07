@@ -36,4 +36,10 @@ void LogInMenuAction(char &option);
 void MainMenuDescription(char &option);
 void MainMenuAction(char &option);
 
+//HU-08 Inicio
+void ShowTasksByTag(const std::vector<Task>& tasks);
+void ShowTasksByKeyword(const std::vector<Task>& tasks);
+void TaskSearch();
+//HU-08 Fin
+
 #endif

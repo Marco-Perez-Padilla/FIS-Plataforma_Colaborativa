@@ -21,6 +21,7 @@
 #ifndef TAREAS_H
 #define TAREAS_H
 
+#include <set>
 #include <string>
 #include <chrono>
 #include <vector>
@@ -48,15 +49,20 @@ class Task {
   std::chrono::year_month_day due_date_;
   Status status_;
   Priority priority_;
+  //HU-8 Nuevo
+  std::set<std::string> tags_;
+  std::string description_;
+  //HU-8 Nuevo fin
  public:
-  // Constructors
-  Task(std::string email, std::string name, std::chrono::year_month_day due_date, Status status = Status::pending, Priority priority = Priority::low) 
+  // Constructors (HU-08 -> Se agrega al constructor un parámetro de descripción) 
+  Task(std::string email, std::string name, std::chrono::year_month_day due_date, std::string description, Status status = Status::pending, Priority priority = Priority::low) 
   : email_(email), name_(name), due_date_(due_date), status_(status), priority_(priority) {}
   // Getters
   const std::string& getUserEmail() const {return email_;}
   const std::chrono::year_month_day& getDueDate() const {return due_date_;}
   const Status& getStatus() const {return status_;}
   const Priority& getPriority() const {return priority_;}
+  // HU-08: Sería conveniente añadir Setters? 
   // Manage Task methods
   void ChangeDueDate();
   void ChangeStatus(); // Change status cambia automaticamente dependiendo de la fecha, conexion con HU 9
@@ -67,10 +73,23 @@ class Task {
   
       // O sea, despues de tener la HU 8 podemos hacer un menu que busque una tarea, que el usuario inserte el nombre, y que pueda cambiar su prioridad 
       // si es alumno, y la fecha de entrega si es profesor (se puede controlar por los menus eso) o algo asi
+  //HU-8 Nuevo
+  void AddTag(const std::string& tag);
+  void RemoveTag(const std::string& tag);
+  bool HasTag(const std::string& tag) const; 
+  bool ContainsKeyword(const std::string& keyword) const;
+  void Show() const;
+  //HU-8 Nuevo fin
 };
 
 
 std::string FormatDate(std::chrono::year_month_day); // Para imprimir una fecha, usar esta funcion, para poder imprimir el string
 Task CreateTask(const std::string&);
+
+//HU-8 Nuevo
+std::vector<Task> FilterByKeyword(const std::vector<Task>& tasks, const std::string& keyword);
+std::vector<Task> FilterByTag(const std::vector<Task>& tasks, const std::string& tag);
+std::vector<Task> LoadTasksFromFile(const std::string& email);
+//HU-8 FIN
 
 #endif
