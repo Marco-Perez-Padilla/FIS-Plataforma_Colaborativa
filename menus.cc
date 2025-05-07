@@ -28,6 +28,7 @@
 #include "login.h"
 #include "exceptions.h"
 #include "users.h"
+#include "tareas.h"
 
 std::vector<User> users;
 User* currentUser = nullptr;
@@ -144,6 +145,8 @@ void MainMenuDescription(char &opt) {
   std::cout << "=== MAIN MENU ===\n"
             << "M. Send a message\n"
             << "B. View inbox\n"
+            << "T. Create a task\n"
+            << "S. Search a task\n"
             << "Q. Quit\n"
             << "Choose: ";
   std::cin >> opt;
@@ -208,6 +211,41 @@ void MainMenuAction(char &opt) {
             if (!msg.read) currentUser->markAsRead(idx-1);
           }
         }
+        pressanykey();
+        break;
+      }
+      case 'T': {
+        // if (currentUser->getRole() != 1) {
+        //   std::cerr << "Operation not allowed. Only available for teachers" << std::endl;
+        //   break;
+        // }
+        int various_students;
+        std::cout << "Will the task be sent to various students? (0 = yes, 1 = no): ";
+        std::cin >> various_students;
+        bool various = true;
+        if (various_students == 1) {
+          various = false;
+        } else if (various_students < 0 || various_students > 1) {
+          break;
+        }
+        do { 
+          std::string email;
+          std::cout << "Introduce email of the student (Introduce 'Q' to finish): ";
+          std::cin >> email;
+          if (email == "Q") {
+            std::cout << "Exit successful" << std::endl;
+            break;
+          }
+          bool exists = userExists(email);
+          if (exists == false) {
+            std::cerr << "User not found" << std::endl;
+            continue;
+          }
+          Task new_task = CreateTask(email);
+          new_task.SaveTask();
+          std::cout << "Task successfully created for " << email << std::endl;
+          std::cout << std::endl;
+        } while ((various_students != 0 || various_students != 1) && various == true);
         pressanykey();
         break;
       }
