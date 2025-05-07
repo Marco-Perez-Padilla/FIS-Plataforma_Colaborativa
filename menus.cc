@@ -93,7 +93,7 @@ void LogInMenuAction(char &opt) {
           auto mensajes = loadMessagesFromFile(currentUser->getEmail());
           for (auto &m : mensajes) currentUser->receiveMessage(m);
 
-          std::cout << "Login successful. Press any key to continue…\n";
+          std::cout << "Login successful. Press any key to continue...\n";
           pressanykey();
           return;
         } catch (const std::exception& error) {
@@ -107,7 +107,7 @@ void LogInMenuAction(char &opt) {
           User newU = Register();
           users.push_back(newU);
           currentUser = &users.back();
-          std::cout << "Sign up successful. Press any key to continue…\n";
+          std::cout << "Sign up successful. Press any key to continue...\n";
           pressanykey();
           return;
         } catch (const std::exception& error) {
@@ -120,7 +120,7 @@ void LogInMenuAction(char &opt) {
         bool changed = ChangePassword();
         if (!changed) exit = true;
         else {
-          std::cout << "Password changed. Press any key…\n";
+          std::cout << "Password changed. Press any key...\n";
           pressanykey();
         }
         break;
@@ -147,6 +147,7 @@ void MainMenuDescription(char &opt) {
             << "Q. Quit\n"
             << "Choose: ";
   std::cin >> opt;
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
 }
 
 void MainMenuAction(char &opt) {
@@ -155,7 +156,27 @@ void MainMenuAction(char &opt) {
     MainMenuDescription(opt);
     switch (opt) {
       case 'M': {
-        //
+        std::string dest, text;
+        std::cout << "Recipient email: ";
+        std::getline(std::cin, dest);
+      
+        if (!userExists(dest)) {
+          std::cout << "User not found.\n";
+        } else {
+          std::cout << "Message: ";
+          std::getline(std::cin, text);
+      
+          // Persistimos en message_data_base.txt
+          saveMessageToFile(
+            currentUser->getEmail(),
+            dest,
+            text,
+            std::chrono::system_clock::now(),
+            false
+          );
+          std::cout << "Sent to " << dest << ".\n";
+        }
+        pressanykey();
         break;
       }
       case 'B': {
@@ -175,7 +196,7 @@ void MainMenuAction(char &opt) {
             std::time_t t = std::chrono::system_clock::to_time_t(m.timestamp);
             std::cout << (m.read ? "[Read] " : "[New]  ")
                       << i+1 << ". From: " << m.sender
-                      << " (" << std::ctime(&t) << ")" ;
+                      << " (" << std::ctime(&t) << ")\n" ;
           }
           std::cout << "Choose message number (0 to go back): ";
           size_t idx;

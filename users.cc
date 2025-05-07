@@ -28,8 +28,8 @@
 #include <ctime>
 
 static const char DELIM = '\t';
-static const std::string MESSAGE_FILE = "messages.txt";
-static const std::string DATA_BASE_FILE = "data_base.txt";
+static const std::string MESSAGE_FILE = "message_data_base.txt";
+static const std::string USER_DB_FILE  = "user_data_base.txt";
 
 User::User(const std::string& email, const std::string& username, short role) : email_(email), username_(username), role_(role) {}
 
@@ -122,6 +122,18 @@ void User::markAsRead(size_t idx) {
 
 void User::clearInbox() {
   inbox_.clear();
+}
+
+bool userExists(const std::string& email) {
+  std::ifstream ifs(USER_DB_FILE);
+  if (!ifs) return false;
+  std::string line;
+  while (std::getline(ifs, line)) {
+    auto pos = line.find('\t');
+    std::string file_email = (pos == std::string::npos ? line : line.substr(0, pos));
+    if (file_email == email) return true;
+  }
+  return false;
 }
 
 const std::string& User::getEmail() const {

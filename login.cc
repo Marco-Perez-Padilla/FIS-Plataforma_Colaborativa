@@ -162,11 +162,11 @@ bool isSignedUp(const User& user, const std::string& password_file) {
  * @param string name of the file that stores the encrypted passwords
  * @param string name of the data base file
  */
-void SignUpUser(const User& user, const std::string& password, const std::string& answer, std::string& password_file, std::string& data_base) {  
+void SignUpUser(const User& user, const std::string& password, const std::string& answer, std::string& password_file, std::string& user_data_base) {  
   std::string copy_password = password;     
   std::string copy_answer = answer;                                                         
   std::ofstream passwd(password_file, std::ios::app);
-  std::ofstream db (data_base, std::ios::app);
+  std::ofstream db (user_data_base, std::ios::app);
 
   if (!passwd.is_open()) {
     throw OpenFileException(password_file);
@@ -177,7 +177,7 @@ void SignUpUser(const User& user, const std::string& password, const std::string
   }
 
   if (!db.is_open()) {
-    throw OpenFileException(data_base);
+    throw OpenFileException(user_data_base);
   } 
 
   if (VerifyValidPassword(copy_password) == false) {
@@ -361,7 +361,7 @@ void ReplacePassword(const User& user, const std::string& new_password, const st
 const User Register() {
   std::string name, email, password, answer;
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
-  std::string data_base = "data_base.txt";
+  std::string user_data_base = "user_data_base.txt";
 
   std::cout << "Enter name: ";
   std::cin >> name;
@@ -380,7 +380,7 @@ const User Register() {
   std::cin >> answer;
 
   
-  SignUpUser(user, password, answer, password_file, data_base);
+  SignUpUser(user, password, answer, password_file, user_data_base);
   
   return user;
 }
@@ -405,8 +405,8 @@ const User LogIn() {
   User user(email, "");
   VerifyLogIn(user, password, password_file); 
 
-  // Leemos username y role del data_base
-  std::ifstream db("data_base.txt");
+  // Leemos username y role del user_data_base
+  std::ifstream db("user_data_base.txt");
   std::string line, username;
   short role = 2;
   while (std::getline(db, line)) {

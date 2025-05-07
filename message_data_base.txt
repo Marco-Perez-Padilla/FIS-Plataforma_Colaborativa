@@ -1,0 +1,5 @@
+juan@gmail.com	pepe@gmail.com	1746628813	1	hola juan soy pepe
+pepe@gmail.com	pepe@gmail.com	1746628836	1	hola soy yo mismo
+pepe@gmail.com	pepe@gmail.com	1746629005	1	holi
+pepe@gmail.com	juan@gmail.com	1746629193	1	hola pepe, yo soy juan
+juan@gmail.com	pepe@gmail.com	1746629461	0	hola
