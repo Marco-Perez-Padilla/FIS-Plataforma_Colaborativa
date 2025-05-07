@@ -5,7 +5,7 @@
 ** Asignatura: Fundamentos de la Ingeniería del Software
 ** Curso: 2º
 ** Practica 6: Entrega de desarrollo ágil
-** Autores: Marco Pérez Padilla, /////
+** Autores: Marco Pérez Padilla, Eduardo Javier Marichal de la Fuente
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 23/04/2025
 
@@ -16,6 +16,7 @@
 
 ** Historial de revisiones:
 **      23/04/2025 - Creacion (primera version) del codigo
+**      07/05/2025 - Mejoras para la implementacion de bases de datos de usuarios y mensajes
 **/
 
 #ifndef USERS_H
@@ -35,6 +36,17 @@ struct Message {
   bool read = false;
 };
 
+// Funciones de persistencia de mensajes en disco
+void saveMessageToFile(const std::string& sender,
+                       const std::string& recipient,
+                       const std::string& content,
+                       const std::chrono::system_clock::time_point& ts,
+                       bool read_flag);
+
+std::vector<Message> loadMessagesFromFile(const std::string& recipient);
+
+void updateMessageReadStatusInFile(const Message& message, const std::string& recipient);
+
 class User {
  private:
   std::string email_;
@@ -44,9 +56,7 @@ class User {
  public:
   // Constructors
   User() = default;
-  User(const std::string& email,
-    const std::string& username,
-    short role = 2);
+  User(const std::string& email, const std::string& username, short role = 2);
   
   // Getters
   const std::string& getEmail() const;
@@ -58,6 +68,7 @@ class User {
   void sendMessage(User& recipient, const std::string& text);
   void receiveMessage(const Message& msg);
   void markAsRead(size_t index);
+  void clearInbox();
 };
 
 #endif

@@ -17,6 +17,7 @@
 ** Historial de revisiones:
 **      21/04/2025 - Creacion (primera version) del codigo
 **      23/04/2025 - Primera version funcional - Implementacion de login y mensajes
+**      07/05/2025 - Mejoras para la implementacion de bases de datos de usuarios y mensajes
 **/
 
 #include <iostream>
@@ -26,6 +27,7 @@
 #include "menus.h"
 #include "login.h"
 #include "exceptions.h"
+#include "users.h"
 
 std::vector<User> users;
 User* currentUser = nullptr;
@@ -75,40 +77,26 @@ void LogInMenuAction(char &opt) {
     LogInMenuDescription(opt);
     switch (opt) {
       case 'L': {
-        //std::string email, password;
-        //std::cout << "Email: ";
-        //std::cin >> email;
-        //std::cout << "Password: ";
-        //std::cin >> password;
-        //std::string pwd_file = "passwords.txt";
-        //User temp(email, email.substr(0, email.find('@')));
         try {
           const User user = LogIn();
-          // si llega aquí, login OK
-          //auto it = std::find_if(users.begin(), users.end(),
-          //[&](auto &u){ return u.getEmail() == email; });
-          //if (it == users.end()) {
-            //users.push_back(user);
-            //currentUser = &users.back();
-          //} else {
-            //currentUser = &*it;
-          //}
+          // Añadimos el usuario si no estaba en la lista y apuntamos currentUser
+          auto it = std::find_if(users.begin(), users.end(),
+            [&](auto &u){ return u.getEmail() == user.getEmail(); });
+          if (it == users.end()) {
+            users.push_back(user);
+            currentUser = &users.back();
+          } else {
+            currentUser = &*it;
+          }
+          // Recargamos la bandeja al entrar
+          currentUser->clearInbox();
+          auto mensajes = loadMessagesFromFile(currentUser->getEmail());
+          for (auto &m : mensajes) currentUser->receiveMessage(m);
+
           std::cout << "Login successful. Press any key to continue…\n";
           pressanykey();
           return;
-        } catch (const OpenFileException& error) {
-          std::cerr << error.what() << std::endl;
-          exit = true;
-          break;
-        } catch (const NonRegisteredException& error) {
-          std::cerr << error.what() << std::endl;
-          exit = true;
-          break;
-        } catch (const WrongPasswordException& error) {
-          std::cerr << error.what() << std::endl;
-          exit = true;
-          break;
-        } catch (const InvalidEmailException& error) {
+        } catch (const std::exception& error) {
           std::cerr << error.what() << std::endl;
           exit = true;
           break;
@@ -122,15 +110,7 @@ void LogInMenuAction(char &opt) {
           std::cout << "Sign up successful. Press any key to continue…\n";
           pressanykey();
           return;
-        } catch (const OpenFileException& error) {
-          std::cerr << error.what() << std::endl;
-          exit = true;
-          break;
-        } catch (const AlreadyRegisteredException& error) {
-          std::cerr << error.what() << std::endl;
-          exit = true;
-          break;
-        } catch (const InvalidEmailException& error) {
+        } catch (const std::exception& error) {
           std::cerr << error.what() << std::endl;
           exit = true;
           break;
@@ -138,20 +118,17 @@ void LogInMenuAction(char &opt) {
       }
       case 'C': {
         bool changed = ChangePassword();
-        if (changed == false) {
-          exit = true;
-          break;
+        if (!changed) exit = true;
+        else {
+          std::cout << "Password changed. Press any key…\n";
+          pressanykey();
         }
-        std::cout << "Password changed. Press any key…\n";
-        pressanykey();
         break;
       }
       case 'R': {
         bool recovered = RecoverPassword();
-        if (recovered == false) {
-          exit = true;
-          break;
-        }
+        if (!recovered) exit = true;
+        break;
       }
       case 'Q':
         std::exit(0);
@@ -159,7 +136,7 @@ void LogInMenuAction(char &opt) {
         std::cout << "Invalid option.\n";
         pressanykey();
     }
-  } while (exit == false);
+  } while (!exit);
   std::exit(1);
 }
 
@@ -178,33 +155,36 @@ void MainMenuAction(char &opt) {
     MainMenuDescription(opt);
     switch (opt) {
       case 'M': {
-        std::string dest, text;
-        std::cout << "Recipient email: ";
-        std::cin >> dest;
-        std::cout << "Message: ";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-        std::getline(std::cin, text);
-        auto it = std::find_if(users.begin(), users.end(),
-          [&](auto &u){ return u.getEmail() == dest; });
-        if (it != users.end()) {
-          currentUser->sendMessage(*it, text);
-          std::cout << "Sent to " << it->getUsername() << ".\n";
-        } else {
-          std::cout << "User not found.\n";
-        }
-        pressanykey();
+        //
         break;
       }
       case 'B': {
+        // Refrescar bandeja
+        currentUser->clearInbox();
+        {
+          auto mensajes = loadMessagesFromFile(currentUser->getEmail());
+          for (auto &m : mensajes)
+            currentUser->receiveMessage(m);
+        }
         const auto &in = currentUser->getInbox();
         if (in.empty()) {
           std::cout << "Your inbox is empty.\n";
         } else {
           for (size_t i = 0; i < in.size(); ++i) {
-            auto &m = in[i];
+            const auto &m = in[i];
+            std::time_t t = std::chrono::system_clock::to_time_t(m.timestamp);
             std::cout << (m.read ? "[Read] " : "[New]  ")
-                      << m.sender << ": " << m.content << "\n";
-            currentUser->markAsRead(i);
+                      << i+1 << ". From: " << m.sender
+                      << " (" << std::ctime(&t) << ")" ;
+          }
+          std::cout << "Choose message number (0 to go back): ";
+          size_t idx;
+          std::cin >> idx;
+          std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+          if (idx > 0 && idx <= in.size()) {
+            auto &msg = const_cast<Message&>(in[idx-1]);
+            std::cout << "\n--- Message ---\n" << msg.content << "\n";
+            if (!msg.read) currentUser->markAsRead(idx-1);
           }
         }
         pressanykey();

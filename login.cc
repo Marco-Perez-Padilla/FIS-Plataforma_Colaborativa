@@ -5,7 +5,7 @@
 ** Asignatura: Fundamentos de la Ingeniería del Software
 ** Curso: 2º
 ** Practica 6: Entrega de desarrollo ágil
-** Autores: Marco Pérez Padilla, 
+** Autores: Marco Pérez Padilla, Eduardo Javier Marichal de la Fuente
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 21/04/2025
 
@@ -17,6 +17,7 @@
 ** Historial de revisiones:
 **      21/04/2025 - Creacion (primera version) del codigo
 **      23/04/2025 - Adicion funciones de recuperacion de contraseña y excepciones
+**      07/05/2025 - Mejoras para la implementacion de bases de datos de usuarios y mensajes
 **/
 
 #include <iostream>
@@ -29,6 +30,11 @@
 #include "users.h"
 #include "exceptions.h"
 
+static void trim(std::string& s) {
+  auto not_space = [](char c){ return !std::isspace((unsigned char)c); };
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), not_space));
+  s.erase(std::find_if(s.rbegin(), s.rend(), not_space).base(), s.end());
+}
 
 /**
  * @brief Cyphers a password given a preselected key
@@ -48,7 +54,6 @@ std::string KeyCypher(const std::string& password, const std::string& key) {
   return result;
 }
 
-
 /**
  * @brief Cyphers a password with a given shift by using Caesar Cypher method
  * @param string password to be encrypted
@@ -63,7 +68,6 @@ std::string CaesarCypher(const std::string& password, int shift) {
   return result;
 }
 
-
 /**
  * @brief Encrypts a password by combining the Cyphers above implemented
  * @param string password to be encrypted
@@ -76,7 +80,6 @@ std::string Encrypt(const std::string& password, const std::string& key, int shi
   std::string caesar_cyphered = CaesarCypher(key_cyphered, shift);
   return caesar_cyphered;
 }
-
 
 /**
  * @brief Decrypts a password created by combining the Cyphers above implemented
@@ -101,7 +104,6 @@ std::string Decrypt(const std::string& encrypted, const std::string& key, int sh
   return original;
 }
 
-
 /**
  * @brief Verifies if a given email is valid (but not if it exists)
  * @param string email to be checked
@@ -111,7 +113,6 @@ bool CheckEmail(const std::string& email) {
   std::regex pattern(R"(^(\d{10}@ull\.edu\.es|[a-zA-Z0-9._%+-]+@(ull\.es|gmail\.com))$)");
   return std::regex_match(email, pattern);
 }
-
 
 /**
  * @brief Verifies if a password if valid. It must contain upper and lower case, number, special character and minimum of 8 size
@@ -130,7 +131,6 @@ bool VerifyValidPassword(const std::string& password) {
   return std::regex_match(password, pattern);
 }
 
-
 /**
  * @brief Verifies is a user is already signed up or not
  * @param User to be verified
@@ -139,32 +139,18 @@ bool VerifyValidPassword(const std::string& password) {
  */
 bool isSignedUp(const User& user, const std::string& password_file) {
   std::ifstream passwd(password_file);
-
-  if (!passwd.is_open()) {
-    throw OpenFileException(password_file);
-  }
+  if (!passwd.is_open()) throw OpenFileException(password_file);
 
   std::string line;
-
-  bool found = false;
-
   while (std::getline(passwd, line)) {
-    std::stringstream ss(line);
-    std::string file_email, encrypted_password;
-
-    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password)) {
-      if (file_email == user.getEmail()) { 
-        found = true;
-        break;
-      }
+    if (line.empty()) continue;
+    std::string file_email = line.substr(0, line.find('\t'));
+    trim(file_email);
+    if (file_email == user.getEmail()) {
+      return true;
     }
   }
-  
-  if (!found) {
-    return false;
-  }
-
-  return true;
+  return false;
 }
 
 
@@ -211,7 +197,8 @@ void SignUpUser(const User& user, const std::string& password, const std::string
   const std::string encrypted_password = Encrypt(copy_password, key, shift);
   const std::string encrypted_answer = Encrypt(copy_answer, key, shift);
 
-  passwd << user.getEmail() << ", " << encrypted_password << "," << encrypted_answer << std::endl; 
+  passwd << user.getEmail() << '\t' << encrypted_password << '\t' << encrypted_answer << '\n';
+  db << user.getEmail() << '\t' << user.getUsername() << '\t' << user.getRole() << '\n';
 }
 
 
@@ -241,25 +228,24 @@ bool VerifyLogIn(const User& user, const std::string& password, const std::strin
     std::stringstream ss(line);
     std::string file_email, encrypted_password, encrypted_answer;
 
-    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password, ',') && std::getline(ss, encrypted_answer)) {
+    if (std::getline(ss, file_email, '\t') && std::getline(ss, encrypted_password, '\t') && std::getline(ss, encrypted_answer)) {
       if (!file_email.empty() && file_email.back() == ' ') {
         file_email.pop_back();
       }
       if (!encrypted_password.empty() && encrypted_password.front() == ' ') {
         encrypted_password.erase(0, 1);
       }
-
-      if (file_email == user.getEmail()) { 
-        std::string decrypted_password = Decrypt(encrypted_password, key, shift);
-
-        if (decrypted_password == password) {
+      trim(file_email);
+      trim(encrypted_password);
+      if (file_email == user.getEmail()) {
+        if (Decrypt(encrypted_password, key, shift) == password)
           return true;
-        } else {
+        else
           throw WrongPasswordException();
-        }
       }
     }
   }
+  throw NonRegisteredException();
 }
 
 
@@ -288,7 +274,10 @@ const std::string VerifyAnswer(const User& user, const std::string& answer, cons
     std::stringstream ss(line);
     std::string file_email, encrypted_password, encrypted_answer;
 
-    if (std::getline(ss, file_email, ',') && std::getline(ss, encrypted_password, ',') && std::getline(ss, encrypted_answer)) {
+    if (std::getline(ss, file_email, '\t') && std::getline(ss, encrypted_password, '\t') && std::getline(ss, encrypted_answer)) {
+      trim(file_email);
+      trim(encrypted_password);
+      trim(encrypted_answer);
       if (!file_email.empty() && file_email.back() == ' ') {
         file_email.pop_back();
       }
@@ -296,16 +285,15 @@ const std::string VerifyAnswer(const User& user, const std::string& answer, cons
         encrypted_password.erase(0, 1);
       }
 
-      if (file_email == user.getEmail()) { 
-        std::string decrypted_answer = Decrypt(encrypted_answer, key, shift);
-        if (decrypted_answer == answer) {
-          const std::string decrypted_password = Decrypt(encrypted_password, key, shift);
-          return decrypted_password;
+      if (file_email == user.getEmail()) {
+        if (Decrypt(encrypted_answer, key, shift) == answer) {
+          return Decrypt(encrypted_password, key, shift);
         } else {
           throw WrongAnswerException();
         }
       }
     }
+    throw NonRegisteredException();
   }
 }
 
@@ -403,7 +391,7 @@ const User Register() {
  * @return User logged in
  */
 const User LogIn() {
-  std::string email, name, password;
+  std::string email, password;
   std::string password_file = "password_manager.txt"; // Creo que es mejor ponerlo en un #define o en una macro
 
   std::cout << "Enter email: "; // Puedo hacer funcion de verificacion de que sea un email, al menos con @ull.edu.es, @ull.es y @gmail.com
@@ -414,9 +402,27 @@ const User LogIn() {
   std::cout << "Enter password: ";
   std::cin >> password;
   
-  User user(email, name);
+  User user(email, "");
   VerifyLogIn(user, password, password_file); 
-  return user;
+
+  // Leemos username y role del data_base
+  std::ifstream db("data_base.txt");
+  std::string line, username;
+  short role = 2;
+  while (std::getline(db, line)) {
+    std::stringstream ss(line);
+    std::string file_email, file_username;
+    short file_role;
+    if (std::getline(ss, file_email, '\t') &&
+        std::getline(ss, file_username, '\t') &&
+        (ss >> file_role) &&
+        file_email == email) {
+      username = file_username;
+      role = file_role;
+      break;
+    }
+  }
+  return User(email, username, role);
 }
 
 
