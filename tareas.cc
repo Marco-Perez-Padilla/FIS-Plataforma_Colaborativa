@@ -107,7 +107,7 @@ void Task::ChangePriority() {
   int option;
   std::cin >> option;
 
-  if (option >= 0 && option <= 3) {
+  if (option >= 0 && option <= 2) {
     priority_ = static_cast<Priority>(option);
   } else {
     std::cout << "Estado inválido. No se realizaron cambios.\n";
@@ -122,7 +122,7 @@ void Task::SaveTask() {
   std::string folder = email_;
   std::filesystem::create_directories(folder);  // Crea la carpeta si no existe
 
-  std::ofstream file(folder + "/tasks.txt");
+  std::ofstream file(folder + "/tasks.txt", std::ios::app);
   if (!file.is_open()) {
     std::cerr << "Error al abrir el archivo de tareas.\n";
     return;
@@ -214,7 +214,7 @@ void Task::RemoveTag(const std::string& tag) {
 
 
 /**
- * @brief Method that checks if a task has a certain task or not
+ * @brief Method that checks if a task has a certain tag or not
  * @param string tag to be found
  * @return bool-type. True if found, false otherwise
  */
@@ -260,7 +260,7 @@ std::vector<Task> FilterByTag(const std::vector<Task>& tasks, const std::string&
 
 /**
  * @brief Function that filters tasks using a keyword
- * @param vetor of tasks: Vector to be filtered
+ * @param vector of tasks: Vector to be filtered
  * @param string tag to be used in the filter
  * @return result of the filter, vector of tasks 
  */
