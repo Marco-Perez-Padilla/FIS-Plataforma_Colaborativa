@@ -215,10 +215,11 @@ void MainMenuAction(char &opt) {
         break;
       }
       case 'T': {
-        // if (currentUser->getRole() != 1) {
-        //   std::cerr << "Operation not allowed. Only available for teachers" << std::endl;
-        //   break;
-        // }
+        if (checkRole(currentUser->getEmail()) != 1) {
+          std::cerr << "Operation not allowed. Only available for teachers" << std::endl;
+          pressanykey();
+          break;
+        }
         int various_students;
         std::cout << "Will the task be sent to various students? (0 = yes, 1 = no): ";
         std::cin >> various_students;
