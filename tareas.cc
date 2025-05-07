@@ -5,7 +5,7 @@
 ** Asignatura: Fundamentos de la Ingeniería del Software
 ** Curso: 2º
 ** Practica 7: Entrega de desarrollo ágil
-** Autores: Marco Pérez Padilla, /////
+** Autores: Marco Pérez Padilla, Alejandro Pérez Andrada, ////
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 21/04/2025
 
@@ -234,12 +234,12 @@ bool Task::ContainsKeyword(const std::string& keyword) const {
 }
 
 
-// void Task::Show() const {
-//   std::cout << "Title: " << title_ << "\nDescription: " << description_ << "\nTags: ";
-//   for (const auto& tag : tags_)
-//     std::cout << "[" << tag << "] ";
-//   std::cout << "\n";
-// }
+void Task::Show() const {
+   std::cout << "Title: " << title_ << "\nDescription: " << description_ << "\nTags: ";
+   for (const auto& tag : tags_)
+     std::cout << "[" << tag << "] ";
+   std::cout << "\n";
+ }
 
 
 /**

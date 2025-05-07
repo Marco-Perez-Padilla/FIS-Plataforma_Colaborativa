@@ -2,3 +2,4 @@ pepe@gmail.com	pepe	2
 juan@gmail.com	juan	2
 admin@ull.es	Admin	0
 teacher@ull.es	Teacher	1
+pepito@ull.es	pepito	2

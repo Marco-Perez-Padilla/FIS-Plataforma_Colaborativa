@@ -23,6 +23,7 @@
 
 #include <vector>
 #include "users.h"
+#include "tareas.h"
 
 extern std::vector<User> users;
 extern User* currentUser;
