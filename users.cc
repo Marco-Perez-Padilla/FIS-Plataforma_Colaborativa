@@ -136,6 +136,26 @@ bool userExists(const std::string& email) {
   return false;
 }
 
+int checkRole (const std::string& email) {
+  std::ifstream ifs(USER_DB_FILE);
+  if (!ifs) return -1; 
+
+  std::string line;
+  while (std::getline(ifs, line)) {
+    std::istringstream iss(line);
+    std::string file_email, role_name;
+    int role_number;
+
+    if (std::getline(iss, file_email, '\t') &&
+        std::getline(iss, role_name, '\t') &&
+        iss >> role_number) {
+      if (file_email == email) return role_number;
+    }
+  }
+
+  return -1;  
+}
+
 const std::string& User::getEmail() const {
   return email_;
 }

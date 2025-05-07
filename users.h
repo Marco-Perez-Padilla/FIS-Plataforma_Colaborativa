@@ -46,6 +46,7 @@ void saveMessageToFile(const std::string& sender,
 std::vector<Message> loadMessagesFromFile(const std::string& recipient);
 
 bool userExists(const std::string& email);
+int checkRole (const std::string& email);
 void updateMessageReadStatusInFile(const Message& message, const std::string& recipient);
 
 class User {
